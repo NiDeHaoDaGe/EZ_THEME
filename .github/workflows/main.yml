@@ -22,3 +22,8 @@ jobs:
 
     - name: 执行构建
       run: npm run build || true
+    - name: 上传构建产物
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-project-dist  # 这是你下载时的压缩包名字
+        path: dist/            # 这里填构建生成的文件夹名称，Vue 通常是 dist
