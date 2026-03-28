@@ -1,29 +1,47 @@
-name: 自动构建与部署
+name: Build and Package ZIP
 
+# 触发条件：当推送到 main 分支时执行（你可以根据需要修改分支名）
 on:
   push:
-    branches: [ "main" ] # 监听 main 分支的提交
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 使用 GitHub 提供的 Linux 服务器
+    runs-on: ubuntu-latest
 
     steps:
-    - name: 检出代码
-      uses: actions/checkout@v4
+      # 1. 拉取仓库代码
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: 安装 Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24' # 你可以根据项目要求调整版本
+          cache: 'npm'
 
-    - name: 安装依赖
-      run: npm install
+      # 3. 安装项目依赖
+      - name: Install dependencies
+        run: npm install
 
-    - name: 执行构建
-      run: npm run build || true
-    - name: 上传构建产物
-      uses: actions/upload-artifact@v4
-      with:
-        name: my-project-dist  # 这是你下载时的压缩包名字
-        path: dist/            # 这里填构建生成的文件夹名称，Vue 通常是 dist
+      # 4. 执行生产环境构建
+      - name: Build project
+        run: npm run build
+
+      # 5. 将构建产物压缩成 ZIP
+      # 假设构建后的文件夹名为 dist，你可以根据实际情况修改
+      - name: Zip build output
+        run: zip -r build_package.zip dist/
+
+      # 6. 上传 ZIP 文件作为 Artifact
+      # 这样你就可以在 GitHub Actions 的运行页面下载它
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EZ_THEME_Build
+          path: build_package.zip
