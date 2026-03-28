@@ -1,6 +1,5 @@
 name: Build and Package ZIP
 
-# 触发条件：当推送到 main 分支时执行（你可以根据需要修改分支名）
 on:
   push:
     branches:
@@ -9,37 +8,43 @@ on:
     branches:
       - main
 
+# 设置环境变量以适配最新的 Node.js 24 运行时
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 拉取仓库代码
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. 设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24' # 你可以根据项目要求调整版本
-          cache: 'npm'
+          node-version: '24' # 直接使用最新的 Node 24 避免弃用警告
+          # 注意：删除了 cache: 'npm'，因为你的仓库里没有提交 package-lock.json
 
-      # 3. 安装项目依赖
       - name: Install dependencies
+        # 如果没有 lock 文件，建议直接运行 npm install
         run: npm install
 
-      # 4. 执行生产环境构建
       - name: Build project
         run: npm run build
 
-      # 5. 将构建产物压缩成 ZIP
-      # 假设构建后的文件夹名为 dist，你可以根据实际情况修改
       - name: Zip build output
-        run: zip -r build_package.zip dist/
+        # 确保 zip 命令在构建成功后执行
+        run: |
+          if [ -d "dist" ]; then
+            zip -r build_package.zip dist/
+          elif [ -d "build" ]; then
+            zip -r build_package.zip build/
+          else
+            echo "Error: Build output folder not found."
+            exit 1
+          fi
 
-      # 6. 上传 ZIP 文件作为 Artifact
-      # 这样你就可以在 GitHub Actions 的运行页面下载它
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
