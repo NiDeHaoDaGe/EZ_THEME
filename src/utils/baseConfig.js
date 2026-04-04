@@ -152,7 +152,7 @@ const DEFAULT_SECURITY_CONFIG = {
   enableFrontendDomainCheck: false,
   
   // 是否启用授权码验证
-  enableLicenseCheck: true,
+  enableLicenseCheck: false,
   
   // 是否启用反调试功能（阻止开发者工具和F12调试）
   enableAntiDebugging: true
@@ -243,7 +243,7 @@ const DEFAULT_BASE_CONFIG = {
   primaryColor: '#00947c',
 
   // 是否启用落地页 (true=启用, false=禁用) TODO
-  enableLandingPage: true
+  enableLandingPage: false
 };
 
 export const DEFAULT_CONFIG = mergeDeep(DEFAULT_BASE_CONFIG, getConfig('DEFAULT_CONFIG'));
